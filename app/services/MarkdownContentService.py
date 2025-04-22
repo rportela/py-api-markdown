@@ -1,6 +1,9 @@
-
-
-from app.repositories.HashedContentSorage import HashedContentSorage
+from datetime import datetime
+from typing import Optional
+from app.repositories.HashedContentSorage import (
+    HashedContentSorage,
+    HashedContentStatus,
+)
 
 
 class MarkdownContentService:
@@ -16,18 +19,27 @@ class MarkdownContentService:
         """
         self._content_storage = content_storage
 
-    def ensure_content(self, content: str) -> None:
+    def ensure_markdown(
+        self,
+        content_type: str,
+        content_bytes: bytes,
+        filename: Optional[str] = None,
+        modified_at: Optional[datetime] = None,
+        overwrite: bool = False,
+    ) -> HashedContentStatus:
         """
         Ensure the markdown content is stored.
         """
-        assert content is not None, "Content cannot be None"
-        self.content = content
-        hash = self._content_storage.ensure_content(
-            content_type="text/markdown",
-            content_bytes=content.encode("utf-8"),
-            filename="content.md",
+        info = self._content_storage.ensure_content(
+            content_type=content_type,
+            content_bytes=content_bytes,
+            filename=filename,
+            modified_at=modified_at,
+            overwrite=overwrite,
         )
-        return hash
+        if info.markdown_date is None:
+            markdownit 
+        return hashed
 
     def get_content(self) -> str:
         """
