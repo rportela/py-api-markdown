@@ -1,0 +1,6 @@
+fastapi[standard]
+chromadb
+openai
+pydantic
+markitdown[all]
+blake3

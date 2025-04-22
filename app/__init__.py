@@ -1,0 +1,1 @@
+"""Package marker and shared app‐wide utilities (optional)."""
