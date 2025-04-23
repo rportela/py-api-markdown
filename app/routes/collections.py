@@ -2,8 +2,12 @@ from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException, status
 
-from app.models import CollectionCreateRequest, DocumentAddRequest, QueryRequest
-from app.services.ChromaService import ChromaService
+from app.services.ChromaService import (
+    ChromaService,
+    CollectionCreateRequest,
+    DocumentAddRequest,
+    QueryRequest,
+)
 
 router = APIRouter()
 service = ChromaService()
@@ -11,18 +15,18 @@ service = ChromaService()
 # —— Collection endpoints ——
 
 
-@router.get("/collections", response_model=list[str])
+@router.get("/v1/collections", response_model=list[str])
 async def list_collections():
     """List all collection names."""
     return service.list_collections()
 
 
-@router.post("/collections", status_code=status.HTTP_201_CREATED)
+@router.post("/v1/collections", status_code=status.HTTP_201_CREATED)
 async def create_collection(body: CollectionCreateRequest):
     return service.create_collection(body.name)
 
 
-@router.delete("/collections/{name}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/v1/collections/{name}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_collection(name: str):
     service.delete_collection(name)
 
@@ -30,12 +34,12 @@ async def delete_collection(name: str):
 # —— Document endpoints ——
 
 
-@router.post("/collections/{name}/documents", status_code=status.HTTP_201_CREATED)
+@router.post("/v1/collections/{name}/documents", status_code=status.HTTP_201_CREATED)
 async def add_documents(name: str, body: DocumentAddRequest):
     return service.add_documents(name, body.ids, body.documents, body.metadatas)
 
 
-@router.get("/collections/{name}/documents/{doc_id}")
+@router.get("/v1/collections/{name}/documents/{doc_id}")
 async def get_document(name: str, doc_id: str):
     result = service.get_document(name, doc_id)
     if not result.get("ids"):
@@ -46,7 +50,7 @@ async def get_document(name: str, doc_id: str):
 
 
 @router.delete(
-    "/collections/{name}/documents/{doc_id}", status_code=status.HTTP_204_NO_CONTENT
+    "/v1/collections/{name}/documents/{doc_id}", status_code=status.HTTP_204_NO_CONTENT
 )
 async def delete_document(name: str, doc_id: str):
     service.delete_document(name, doc_id)
@@ -55,6 +59,6 @@ async def delete_document(name: str, doc_id: str):
 # —— Query endpoint ——
 
 
-@router.post("/collections/{name}/query")
+@router.post("/v1/collections/{name}/query")
 async def query(name: str, body: QueryRequest):
     return service.query(name, body.query_texts, body.top_k, body.where)

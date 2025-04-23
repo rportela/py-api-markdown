@@ -15,6 +15,11 @@ class HashedContentStatus(BaseModel):
     filename: Optional[str] = None
     markdown_date: Optional[str] = None
     markdown_error: Optional[str] = None
+    metadata: Optional[dict] = None
+
+
+ORIGINAL_FILE = "original.bin"
+INDEX_FILE = "index.json"
 
 
 class HashedContentSorage:
@@ -34,16 +39,23 @@ class HashedContentSorage:
         """
         Get the original content by its hash.
         """
-        return self._byte_repo.get_bytes(hash, "original.bin")
+        return self._byte_repo.get_bytes(hash, ORIGINAL_FILE)
 
     def get_status(self, hash: str) -> HashedContentStatus | None:
         """
         Get the status of the content by its hash.
         """
-        status_bytes = self._byte_repo.get_bytes(hash, "index.json")
+        status_bytes = self._byte_repo.get_bytes(hash, INDEX_FILE)
         if status_bytes is None:
             return None
         return HashedContentStatus.model_validate_json(status_bytes)
+
+    def set_status(self, status: HashedContentStatus) -> None:
+        """
+        Set the status of the content.
+        """
+        status_bytes = status.model_dump_json().encode("utf-8")
+        self._byte_repo.put_bytes(status.hash, INDEX_FILE, status_bytes)
 
     def put_bytes(self, hash: str, filename: str, data: bytes) -> None:
         """
@@ -92,6 +104,7 @@ class HashedContentSorage:
         filename: Optional[str] = None,
         modified_at: Optional[datetime] = None,
         overwrite: bool = False,
+        metadata: Optional[dict] = None,
     ) -> HashedContentStatus:
         """
         Ensure the content is stored and return its hash.
@@ -99,10 +112,9 @@ class HashedContentSorage:
         assert content_bytes is not None, "Content bytes cannot be None"
         assert content_type is not None, "Content type cannot be None"
         hash = blake3(content_bytes).hexdigest()
-        status_file = "index.json"
-        status_bytes = self._byte_repo.get_bytes(hash, status_file)
+        status_bytes = self._byte_repo.get_bytes(hash, INDEX_FILE)
         if status_bytes is None or overwrite:
-            self._byte_repo.put_bytes(hash, "original.bin", content_bytes)
+            self._byte_repo.put_bytes(hash, ORIGINAL_FILE, content_bytes)
             status = HashedContentStatus(
                 hash=hash,
                 size=len(content_bytes),
@@ -113,11 +125,10 @@ class HashedContentSorage:
                     else datetime.now(tz=timezone.utc).isoformat()
                 ),
                 filename=filename,
+                metadata=metadata,
             )
             status_bytes = status.model_dump_json().encode("utf-8")
-            self._byte_repo.put_bytes(hash, status_file, status_bytes)
+            self._byte_repo.put_bytes(hash, INDEX_FILE, status_bytes)
         else:
-            status_bytes = self._byte_repo.get_bytes(hash, status_file)
-            assert status_bytes is not None, "Status bytes cannot be None"
             status = HashedContentStatus.model_validate_json(status_bytes)
         return status
