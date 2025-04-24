@@ -3,8 +3,8 @@ from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel
-from app.repositories.HashedContentSorage import (
-    HashedContentSorage,
+from app.repositories.HashedContentStorage import (
+    HashedContentStorage,
     HashedContentStatus,
 )
 from app.services.MarkdownService import MarkdownService
@@ -32,17 +32,17 @@ class ContentDownloadResponse(BaseModel):
 
 class ContentService:
 
-    _storage: HashedContentSorage
+    _storage: HashedContentStorage
     _md: MarkdownService
 
-    def __init__(self, storage: HashedContentSorage):
+    def __init__(self, storage: HashedContentStorage):
         self._storage = storage
         self._md = MarkdownService(storage)
 
     def get_status(self, hash: str) -> HashedContentStatus | None:
         return self._storage.get_status(hash)
 
-    def get_original(self, hash: str) -> ContentDownloadResponse | None:
+    def download(self, hash: str) -> ContentDownloadResponse | None:
         info = self._storage.get_status(hash)
         if info is None:
             return None

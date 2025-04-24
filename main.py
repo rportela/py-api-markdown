@@ -3,7 +3,7 @@ from __future__ import annotations
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routes import router as chroma_router
+from app.routes.collections import router as chroma_router
 
 app = FastAPI(
     title="ChromaDB REST API",

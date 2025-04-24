@@ -22,7 +22,7 @@ ORIGINAL_FILE = "original.bin"
 INDEX_FILE = "index.json"
 
 
-class HashedContentSorage:
+class HashedContentStorage:
     """
     Abstract class for storing and retrieving hashed content.
     """

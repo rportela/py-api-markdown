@@ -1,8 +1,7 @@
 from datetime import datetime, timezone
 from io import BytesIO
-from typing import Optional
-from app.repositories.HashedContentSorage import (
-    HashedContentSorage,
+from app.repositories.HashedContentStorage import (
+    HashedContentStorage,
     HashedContentStatus,
 )
 from markitdown import MarkItDown, StreamInfo
@@ -15,12 +14,12 @@ class MarkdownService:
     Service to handle markdown content.
     """
 
-    _content_storage: HashedContentSorage
+    _content_storage: HashedContentStorage
     _markitdown: MarkItDown
 
-    def __init__(self, content_storage: HashedContentSorage):
+    def __init__(self, content_storage: HashedContentStorage):
         """
-        Initialize the MarkdownContentService with a HashedContentSorage.
+        Initialize the MarkdownContentService with a HashedContentStorage.
         """
         self._content_storage = content_storage
         self._markitdown = MarkItDown(enable_builtins=True, enable_plugins=True)
